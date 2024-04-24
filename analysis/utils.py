@@ -26,9 +26,7 @@ PILE_DATASETS = [
     "pile.test.youtubesubtitles.512",
 ]
 
-HIPE_DATASETS = ["hipe.train.EXP.512", "hipe.train.GDL.512", "hipe.train.IMP.512"]
-
-MODEL_FAMILIES = ["pythia", "gpt2", "llama"]
+MODEL_FAMILIES = ["pythia", "gpt2"]
 
 
 def get_model_family(model_name):

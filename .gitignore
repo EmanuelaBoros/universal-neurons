@@ -1,4 +1,6 @@
 # project specific
+
+data/
 stats/
 results/
 tokenized_datasets/
