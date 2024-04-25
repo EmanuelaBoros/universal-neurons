@@ -14,6 +14,7 @@ from transformer_lens import HookedTransformer
 from transformer_lens.utils import tokenize_and_concatenate
 import pandas as pd
 from datasets import Dataset
+from analysis.sequence_features import make_spacy_feature_df
 
 DATASET_ALIASES = {
     "openwebtext": "stas/openwebtext-10k",
@@ -143,6 +144,31 @@ def tokenize_hipe_subsets(hipe_ds, model, ctx_len=512):
     return sub_ds_dict
 
 
+def tokenize_hipe_subsets_sequences(hipe_ds, model, ctx_len=512):
+    seq_char_len = np.array([len(t) for t in hipe_ds["sentence"]])
+    valid_ixs = np.arange(len(hipe_ds))[seq_char_len > 50]
+    ds = hipe_ds.select(valid_ixs)
+
+    seq_subset = np.array(ds["source"])
+    subsets = np.unique(seq_subset)
+
+    sub_ds_dict = {}
+    print(subsets)
+    for subset in subsets:
+        print("Tokenizing subset:", subset)
+        mask = seq_subset == subset
+        sub_ds = ds.select(np.arange(len(ds))[mask])
+        sub_ds_tokens = tokenize_and_concatenate(
+            sub_ds, model.tokenizer, max_length=ctx_len, column_name="sentence"
+        )
+        # format = {'type': 'torch', 'format_kwargs': {'dtype': torch.int}}
+        # sub_ds_tokens.set_format(**format)
+
+        sub_ds_dict[subset] = make_spacy_feature_df(model, sub_ds_tokens["tokens"])
+
+    return sub_ds_dict
+
+
 def create_pile_subset(model_family, n_tokens, n_tokens_name):
     base_path = os.path.join("token_datasets", model_family)
     dsets = []
@@ -224,6 +250,27 @@ if __name__ == "__main__":
                 model_family,
                 f"hipe.{args.hf_dataset_split}.{subset_name}.{args.ctx_len}",
             )
+            os.makedirs(save_path, exist_ok=True)
+            sub_ds.save_to_disk(save_path)
+
+        ds_sequence_dict = tokenize_hipe_subsets_sequences(dataset, model, ctx_len=512)
+        for subset, sub_ds in ds_dict.items():
+            subset_name = HIPE_SUBSET_ALIASES[subset]
+
+            save_path = os.path.join(
+                "dataframes",
+                "dataset_dfs",
+                # model_name.replace("small", "medium"),
+                # args.dataset,
+                model_family,
+                f"hipe.{args.hf_dataset_split}.{subset_name}.{args.ctx_len}",
+            )
+
+            # save_path = os.path.join(
+            #     args.output_dir,
+            #     model_family,
+            #     f"hipe.{args.hf_dataset_split}.{subset_name}.{args.ctx_len}",
+            # )
             os.makedirs(save_path, exist_ok=True)
             sub_ds.save_to_disk(save_path)
     else:

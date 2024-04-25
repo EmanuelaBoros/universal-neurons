@@ -16,7 +16,7 @@ import plotly.graph_objs as go
 
 
 def load_dataset_summary(model_name, dataset_name):
-    path = os.path.join("summary", model_name, "activations", dataset_name)
+    path = os.path.join("data", "summary", model_name, "activations", dataset_name)
     summary_dict = {}
     for data_file in os.listdir(path):
         if data_file.endswith(".pt"):
@@ -44,8 +44,8 @@ def load_all_summaries(model_name):
             dataset_summaries[dataset_short_name] = load_dataset_summary(
                 model_name, dataset_name
             )
-        except:
-            print("Skipping", dataset_name)
+        except Exception as ex:
+            print("Skipping", dataset_name, "--", ex)
     return dataset_summaries
 
 

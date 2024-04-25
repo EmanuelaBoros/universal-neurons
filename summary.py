@@ -141,9 +141,10 @@ def summarize_activations(args, model, dataset, device):
         index_offset += batch_size * ctx_len
 
     # save statistics (TODO: consider saving by layer; 8bit quantization)
+    model_family = get_model_family(args.model)
     save_path = os.path.join(
         args.output_dir,
-        args.model,
+        model_family,
         "activations",
         args.token_dataset,
     )

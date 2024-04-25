@@ -135,7 +135,8 @@ def get_layer_activations(args, model, dataset, device):
         model.reset_hooks()
 
     # save activations
-    save_path = os.path.join(args.output_dir, args.model, args.token_dataset)
+    model_family = get_model_family(args.model)
+    save_path = os.path.join(args.output_dir, model_family, args.token_dataset)
     os.makedirs(save_path, exist_ok=True)
     agg = "none" if args.activation_aggregation is None else args.activation_aggregation
     for layer_ix, activations in layer_activations.items():
@@ -322,12 +323,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    device = torch.device(
-        "cuda"
-        if torch.cuda.is_available()
-        else ("mps" if torch.backends.mps.is_available() else "cpu")
-    )
-
+    # device = torch.device(
+    #     "cuda"
+    #     if torch.cuda.is_available()
+    #     else ("mps" if torch.backends.mps.is_available() else "cpu")
+    # )
+    device = "cpu"
     model = HookedTransformer.from_pretrained(args.model, device="cpu")
     # model.to(device)
     model.eval()

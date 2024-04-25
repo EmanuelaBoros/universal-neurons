@@ -3,12 +3,13 @@ import pandas as pd
 import spacy
 from utils import timestamp
 import spacy_alignments as tokenizations
-from spell import correction
+
+# from spell import correction
 
 
-def get_noise_level(token):
-    corrected_versions = correction(token)
-    return corrected_versions
+# def get_noise_level(token):
+#     corrected_versions = correction(token)
+#     return corrected_versions
 
 
 def get_spacy_tag(tok_ix2spacy_ixs, spacy_attribute_list):
@@ -29,7 +30,8 @@ def get_model_labels(model2spacy, spacy_tag):
 def make_spacy_feature_df(model, token_tensor):
 
     spacy.prefer_gpu()
-    nlp = spacy.load("en_core_web_trf")
+    # nlp = spacy.load("en_core_web_trf")
+    nlp = spacy.load("fr_core_news_lg")
 
     print("Starting spacy processing of dataset...")
     texts = [model.to_string(token_tensor[i, 1:]) for i in range(len(token_tensor))]
